@@ -12,20 +12,66 @@ def main():
 # Connection is established with server using socket function
 	while(True):
 		print("> ", end = "")
-		command = input()
-		command = command.split(" ")
-		serverLocation = command[1]
-		dataPort = int(command[2])
-		direction = command[3]
-		controlPort = int(command[4])
+		message = input()
+		message = message.split(" ")
+		serverLocation = message[1]
+		controlPort = int(message[2])
+		command = message[3]
+		if (command == "-l"):
+			dataPort = int(message[4])
+		elif (command == "-g"):
+			file = message[4]
+			dataPort = int(message[5])
+
 		serverAddress = 'localhost'
-		print(serverLocation, dataPort, direction, controlPort)
 		establishedConnectionFD = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		establishedConnectionFD.connect((serverAddress, dataPort))
+		establishedConnectionFD.connect((serverAddress, controlPort))
+		if establishedConnectionFD:
+			print("Connected to Server")
 
-# ftclient flip1 30021 -l 30020
+		establishedConnectionFD.sendall(command.encode('utf-8'))
+		ack = b''
+		while len(ack) < 5:
+			ack += establishedConnectionFD.recv(5)
+		ack = ack.decode('utf-8')
+		if(len(ack) != 5):
+			print("An Error Occured!")
+		establishedConnectionFD.sendall(str(dataPort).encode('utf-8'))
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.bind(('localhost', dataPort))
+		sock.listen(1)
+		print("Listening on Data Port ", dataPort)
+		connection, clientAddress = sock.accept()
+		print("Established Connection With ", clientAddress)
+
+		if (command == "-l"):
+			print("DIRECTORY LISTING")
+			response = b''
+			while len(response) < 1024:
+				response += connection.recv(1024)
+			response = response.decode('utf-8')
+			if(len(response) != 1024):
+				print("An Error Occured!")
+			response = response.split(" . ")
+			response.pop()
+			for item in response:
+				print(item)
+
+		elif(command == "-g"):
+			print("RETRIEVING DIRECTORY")
+
+		establishedConnectionFD.close()
 
 
+# ftclient flip1 30030 -l 30031
+# ftclient flip1 11111 -l 11112
+# ftclient flip1 11113 -g file 11114
+# ftclient flip1 11115 -g file 11116
+# ftclient flip1 30034 -l 30035
+# ftclient flip1 30036 -l 30037
+# ftclient flip1 30038 -l 30039
+# Control Port 30021
+# Data Port 30020
 
 
 
