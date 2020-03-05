@@ -54,25 +54,18 @@ def main():
 		packet = 1
 		list = []
 		while True:
-#			print("Packet: ", packet)
 			fragment = connection.recv(1024)
 			fragment = bytearray(fragment)
 			counter = 0
-#			print("\n\nBEFORE:")
-#			print(fragment)
 			for item in fragment:
 				if item == 0:
 					fragment.remove(item)
 					list.append(counter)
 				counter = counter + 1
 			if not fragment:
-#				print("Complete")
 				break
-#			print(" \n\nAFTER:")
-#			print(fragment)
 			response.extend(fragment)
 			packet = packet + 1
-#		print("Complete")
 		for item in response:
 			if item == 0:
 				response.remove(item)
