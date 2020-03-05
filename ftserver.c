@@ -102,7 +102,7 @@ while (1){
 			closedir(d);
 		}
 		write(sock, directory, 1024);
-		printf("%s\n", directory);
+//		printf("%s\n", directory);
 	}
 
 // Execute Command -g -------------
